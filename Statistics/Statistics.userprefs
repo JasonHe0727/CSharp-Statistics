@@ -1,0 +1,29 @@
+﻿<Properties StartupItem="Statistics/Statistics.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Statistics/DataContainers/DataFrame.cs">
+    <Files>
+      <File FileName="Statistics/DataContainers/DataFrame.cs" Line="25" Column="10" />
+      <File FileName="Statistics/DataContainers/DataColumn.cs" Line="60" Column="10" />
+      <File FileName="Statistics/Program.cs" Line="23" Column="41" />
+      <File FileName="Statistics/DataContainers/DataFrameWriter.cs" Line="98" Column="1" />
+      <File FileName="Statistics/DataContainers/DataFrameReader.cs" Line="20" Column="9" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="Statistics" expanded="True">
+            <Node name="Statistics" expanded="True">
+              <Node name="DataContainers" expanded="True">
+                <Node name="DataFrame.cs" selected="True" />
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
