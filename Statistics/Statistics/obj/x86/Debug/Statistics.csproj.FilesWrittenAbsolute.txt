@@ -3,3 +3,8 @@
 /home/jasonhe/MyCode/CSharpCode/Statistics/Statistics/bin/Debug/Statistics.exe
 /home/jasonhe/MyCode/CSharpCode/Statistics/Statistics/obj/x86/Debug/Statistics.exe
 /home/jasonhe/MyCode/CSharpCode/Statistics/Statistics/obj/x86/Debug/Statistics.exe.mdb
+/home/jasonhe/MyCode/CSharpCode/CSharp-Statistics/Statistics/Statistics/obj/x86/Debug/.NETFramework,Version=v4.5.AssemblyAttribute.cs
+/home/jasonhe/MyCode/CSharpCode/CSharp-Statistics/Statistics/Statistics/obj/x86/Debug/Statistics.exe
+/home/jasonhe/MyCode/CSharpCode/CSharp-Statistics/Statistics/Statistics/obj/x86/Debug/Statistics.exe.mdb
+/home/jasonhe/MyCode/CSharpCode/CSharp-Statistics/Statistics/Statistics/bin/Debug/Statistics.exe.mdb
+/home/jasonhe/MyCode/CSharpCode/CSharp-Statistics/Statistics/Statistics/bin/Debug/Statistics.exe

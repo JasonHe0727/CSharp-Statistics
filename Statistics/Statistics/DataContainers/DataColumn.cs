@@ -24,6 +24,15 @@ namespace Statistics.DataContainers
             this.data = new ArrayList();
         }
 
+        public DataColumn(DataFrame frame, string columnName, Type type, int capacity)
+        {
+            this.columnName = columnName;
+            this.frame = frame;
+            this._type = type;
+            this.data = new ArrayList(capacity);
+        }
+
+
         public int Count { get { return this.data.Count; } }
 
         internal int Add(object value)
@@ -123,6 +132,8 @@ namespace Statistics.DataContainers
                 yield return item;
             }
         }
+
+       
     }
 }
 

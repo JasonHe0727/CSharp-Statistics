@@ -25,6 +25,10 @@ namespace Statistics.DataContainers
             {
                 this.writer.Write(this.frame.Columns[i].ColumnName);
             }
+            for (int i = 0; i < frame.ColumnCount; i++)
+            {
+                this.writer.Write(this.frame.Columns[i].type.FullName);
+            }
         }
 
         internal void WriteAll()
@@ -92,17 +96,18 @@ namespace Statistics.DataContainers
             {
                 this.stream.Dispose();
             }
-            if (this.writer!= null)
+            if (this.writer != null)
             {
                 this.writer.Dispose();
             }
         }
 
-        private enum DataType:byte
-        {
-            Null = 0,
-            NotNull = 1,
-        }
+
+    }
+    internal enum DataType:byte
+    {
+        Null = 0,
+        NotNull = 1,
     }
 }
 

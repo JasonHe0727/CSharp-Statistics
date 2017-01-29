@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Collections.ObjectModel;
+
 namespace Statistics.DataContainers
 {
     public class DataFrame
@@ -23,7 +24,8 @@ namespace Statistics.DataContainers
 
         public ReadOnlyCollection<DataColumn> Columns
         {
-            get {
+            get
+            {
                 return this.columns.AsReadOnly();
             }
         }
@@ -53,7 +55,7 @@ namespace Statistics.DataContainers
             }
             else
             {
-                DataColumn newColumn = new DataColumn(this, columnName, type);
+                DataColumn newColumn = new DataColumn(this, columnName, type, this.rowCount);
                 columnFromName.Add(columnName, newColumn);
                 columns.Add(newColumn);
             }
@@ -147,6 +149,17 @@ namespace Statistics.DataContainers
         }
 
 
+        internal static DataFrame CreatEmptyFrame(string[] columnNames, Type[] types, int rowCapacity)
+        {
+            var frame = new DataFrame();
+            for (int i = 0; i < columnNames.Length; i++)
+            {
+                DataColumn newColumn = new DataColumn(frame, columnNames[i], types[i], rowCapacity);
+                frame.columnFromName.Add(columnNames[i], newColumn);
+                frame.columns.Add(newColumn);
+            }
+            return frame;
+        }
 
     }
 }
