@@ -43,6 +43,8 @@
     <Compile Include="DataContainers\BooleanColumn.cs" />
     <Compile Include="DataContainers\DataFrameWriter.cs" />
     <Compile Include="DataContainers\DataFrameReader.cs" />
+    <Compile Include="DataContainers\DataRow.cs" />
+    <Compile Include="DataContainers\DataFrameExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

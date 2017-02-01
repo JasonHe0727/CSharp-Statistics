@@ -6,8 +6,8 @@ namespace Statistics.DataContainers
 {
     internal class DataFrameReader:IDisposable
     {
-        Stream stream;
-        BinaryReader reader;
+        readonly Stream stream;
+        readonly BinaryReader reader;
         DataFrame frame;
 
         internal DataFrameReader(string path, Encoding encoding)
@@ -16,38 +16,46 @@ namespace Statistics.DataContainers
             this.reader = new BinaryReader(stream, encoding);
         }
 
+        internal DataFrame LoadData()
+        {
+            ReadInfo();
+            ReadAll();
+            return frame;
+        }
+
         void ReadInfo()
         {
             int nRows = this.reader.ReadInt32();
             int nCols = this.reader.ReadInt32();
             string[] columnNames = new string[nCols];
-            Type[] types = new Type[nCols];
             for (int i = 0; i < nCols; i++)
             {
                 columnNames[i] = this.reader.ReadString();
             }
+
+            Type[] types = new Type[nCols];
             for (int i = 0; i < nCols; i++)
             {
                 types[i] = Type.GetType(this.reader.ReadString());
             }
+
             this.frame = DataFrame.CreatEmptyFrame(columnNames, types, nRows);
         }
 
         void ReadAll()
         {
+            Func<object>[] converters = new Func<object>[frame.ColumnCount];
             for (int col = 0; col < frame.ColumnCount; col++)
             {
-                DataColumn column = this.frame.Columns[col];
-                Func<object> converter = GetConverter(column.type);
-                for (int row = 0; row < frame.RowCount; row++)
+                converters[col] = GetConverter(this.frame.Columns[col].type);
+            }
+            for (int row = 0; row < frame.RowCount; row++)
+            {
+                for (int col = 0; col < frame.ColumnCount; col++)
                 {
                     if (ReadType())
                     {
-                        column.Add(converter());
-                    }
-                    else
-                    {
-                        column.Add(null);
+                        this.frame[row, col] = converters[col]();
                     }
                 }
             }

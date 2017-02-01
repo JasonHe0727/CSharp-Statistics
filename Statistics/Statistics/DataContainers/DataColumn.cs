@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace Statistics.DataContainers
 {
-    public class DataColumn:ICollection, IEnumerable
+    public class DataColumn:ICollection, IEnumerable,ICloneable
     {
         private DataFrame frame;
         private ArrayList data;
@@ -133,7 +133,36 @@ namespace Statistics.DataContainers
             }
         }
 
-       
+        public object Clone()
+        {
+            var newColumn = new DataColumn(this.frame, this.columnName, this.type, this.Count);
+            foreach (var item in this.data)
+            {
+                newColumn.data.Add(item);
+            }
+            return newColumn;
+        }
+
+        public void ConvertAll(Type type)
+        {
+            this._type = type;
+            for (int i = 0; i < this.Count; i++)
+            {
+                object value = this.data[i];
+                if (value != null)
+                {
+                    this.data[i] = Convert.ChangeType(value, type);
+                }
+            }
+        }
+
+        public void Apply(Func<object,object> f)
+        {
+            for (int i = 0; i < this.Count; i++)
+            {
+                this[i] = f(this[i]);
+            }
+        }
     }
 }
 

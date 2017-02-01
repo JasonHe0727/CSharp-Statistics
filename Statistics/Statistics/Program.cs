@@ -1,5 +1,6 @@
 ﻿using System;
 using Statistics.DataContainers;
+using System.Text;
 
 namespace Statistics
 {
@@ -17,10 +18,11 @@ namespace Statistics
             {
                 df.AddRow(name, rnd.Next(1, 50));
             }
+            // df[0, 1] = null;
             Console.WriteLine(df);
-            Console.WriteLine("=========================");
-            Console.WriteLine(df[2, 0]);
-            Console.WriteLine(df[2, 1]);
+            Console.WriteLine(df.GetRow(0)[0]);
+            //  df.SaveToFile("test_df.cdf", Encoding.UTF8);
+            Console.WriteLine("Finished.");
         }
     }
 }

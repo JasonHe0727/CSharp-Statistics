@@ -7,8 +7,8 @@ namespace Statistics.DataContainers
     internal class DataFrameWriter:IDisposable
     {
         DataFrame frame;
-        Stream stream;
-        BinaryWriter writer;
+        readonly Stream stream;
+        readonly BinaryWriter writer;
 
         internal DataFrameWriter(DataFrame frame, string path, Encoding encoding)
         {
@@ -17,38 +17,52 @@ namespace Statistics.DataContainers
             this.writer = new BinaryWriter(stream, encoding);
         }
 
-        internal void WriteInfo()
+        internal void SaveData()
+        {
+            WriteInfo();
+            WriteAll();
+        }
+
+        void WriteInfo()
         {
             this.writer.Write(frame.RowCount);
             this.writer.Write(frame.ColumnCount);
+
             for (int i = 0; i < frame.ColumnCount; i++)
             {
                 this.writer.Write(this.frame.Columns[i].ColumnName);
             }
+
             for (int i = 0; i < frame.ColumnCount; i++)
             {
                 this.writer.Write(this.frame.Columns[i].type.FullName);
             }
         }
 
-        internal void WriteAll()
+        void WriteAll()
         {
+            Type[] types = new Type[frame.ColumnCount];
             for (int col = 0; col < frame.ColumnCount; col++)
             {
-                WriteColumn(frame.Columns[col]);
+                types[col] = frame.Columns[col].type;
             }
-        }
 
-        void WriteColumn(DataColumn column)
-        {
-            Type type = column.type;
-            Action<object> converter = GetConverter(type);
-            for (int row = 0; row < column.Count; row++)
+            Action<object>[] converters = new Action<object>[frame.ColumnCount];
+
+            for (int col = 0; col < frame.ColumnCount; col++)
             {
-                object value = column[row];
-                if (WriteFlag(value))
+                converters[col] = GetConverter(types[col]);
+            }
+
+            for (int row = 0; row < frame.RowCount; row++)
+            {
+                for (int col = 0; col < frame.ColumnCount; col++)
                 {
-                    converter(value);
+                    object value = frame[row, col];
+                    if (WriteFlag(value))
+                    {
+                        converters[col](value);
+                    }
                 }
             }
         }
@@ -104,6 +118,7 @@ namespace Statistics.DataContainers
 
 
     }
+
     internal enum DataType:byte
     {
         Null = 0,
