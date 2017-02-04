@@ -11,6 +11,8 @@ namespace Statistics.DataContainers
 
         public int RowIndex { get { return this.rowIndex; } }
 
+        public int ColumnCount { get { return this.frame.ColumnCount; } }
+
         public DataRow(DataFrame frame, int rowIndex)
         {
             this.frame = frame;
@@ -29,6 +31,18 @@ namespace Statistics.DataContainers
             set { this.frame[columnName][this.rowIndex] = value; }
         }
 
+        public object[] ItemArray
+        {
+            get
+            { 
+                object[] array = new object[this.frame.ColumnCount];
+                for (int i = 0; i < array.Length; i++)
+                {
+                    array[i] = this[i];
+                }
+                return array;
+            }
+        }
     }
 }
 

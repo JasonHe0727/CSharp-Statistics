@@ -16,6 +16,36 @@ namespace Statistics.DataContainers
 
         public int ColumnCount { get { return this.columns.Count; } }
 
+        DataColumn primaryKey;
+
+        public DataColumn PrimaryKey
+        { 
+            get
+            {
+                return this.primaryKey;
+            }
+            set
+            {
+                if (this.columns.Contains(value))
+                {
+                    value.Unique = true;
+                    if (this.primaryKey == null)
+                    {
+                        this.primaryKey = value;
+                    }
+                    else
+                    {
+                        this.primaryKey.Unique = false;
+                        this.primaryKey = value;
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("PrimaryKey");
+                }
+            }
+        }
+
         public DataFrame()
         {
             this.columnFromName = new Dictionary<string, DataColumn>();
@@ -29,16 +59,6 @@ namespace Statistics.DataContainers
             this.columns = new List<DataColumn>();
             this.rowCount = rowCount;
         }
-
-        /*        public DataFrame(IEnumerable<DataRow> rows)
-        {
-            using (var iterator = rows.GetEnumerator())
-            {
-                if (iterator.MoveNext())
-                {
-                }
-            }
-        }*/
 
         public ReadOnlyCollection<DataColumn> Columns
         {
@@ -125,6 +145,7 @@ namespace Statistics.DataContainers
                 {
                     this.columns[i].RemoveAt(row);
                 }
+                this.rowCount--;
             }
             else
             {
@@ -214,13 +235,23 @@ namespace Statistics.DataContainers
             return frame;
         }
 
-        public static DataFrame LoadFromFile(string path, Encoding encoding)
+        public static DataFrame LoadFromBinaryFile(string path)
+        {
+            return LoadFromBinaryFile(path, Encoding.UTF8);
+        }
+
+        public static DataFrame LoadFromBinaryFile(string path, Encoding encoding)
         {
             var reader = new DataFrameReader(path, encoding);
             return reader.LoadData();
         }
 
-        public void SaveToFile(string path, Encoding encoding)
+        public void SaveToBinaryFile(string path)
+        {
+            this.SaveToBinaryFile(path, Encoding.UTF8);
+        }
+
+        public void SaveToBinaryFile(string path, Encoding encoding)
         {
             var writer = new DataFrameWriter(this, path, encoding);
             writer.SaveData();
@@ -246,6 +277,68 @@ namespace Statistics.DataContainers
             {
                 throw new ArgumentOutOfRangeException("rowIndex");
             }
+        }
+
+        public DataFrame Subset(Predicate<DataRow> filter)
+        {
+            DataFrame newFrame = new DataFrame();
+            foreach (DataColumn column in columns)
+            {
+                newFrame.AddColumn(column.ColumnName, column.type);
+            }
+            for (int i = 0; i < this.rowCount; i++)
+            {
+                DataRow row = this.GetRow(i);
+                if (filter(row))
+                {
+                    newFrame.AddRow(row.ItemArray);
+                }
+            }
+            return newFrame;
+        }
+
+        public int IndexOfKey(object key)
+        {
+            if (this.primaryKey == null)
+            {
+                throw new Exception("DataFrame does not have a primary key.");
+            }
+            else
+            {
+                return this.primaryKey.IndexOf(key);
+            }
+        }
+
+        public int IndexOfColumn(string columnName)
+        {
+            for (int i = 0; i < columns.Count; i++)
+            {
+                if (string.Equals(columns[i].ColumnName, columnName))
+                {
+                    return i;
+                }
+            }
+            return (-1);
+        }
+
+
+        public void Clear()
+        {
+            for (int i = 0; i < this.columns.Count; i++)
+            {
+                this.columns[i].Clear();
+            }
+            this.rowCount = 0;
+        }
+
+        public T[] MapToClass<T>(Func<DataRow,T> converter)
+        {
+            T[] array = new T[this.rowCount];
+            for (int i = 0; i < this.rowCount; i++)
+            {
+                array[i] = converter(this.GetRow(i));
+            }
+            return array;
         }
     }
 }

@@ -9,12 +9,26 @@ namespace Statistics.DataContainers
         private ArrayList data;
         private Type _type;
         private string columnName;
+        private bool unique = false;
 
         public DataFrame Frame { get { return this.frame; } }
 
         public Type type { get { return this._type; } }
 
         public string ColumnName { get { return this.columnName; } }
+
+        public bool Unique
+        {
+            get { return this.unique; }
+            set
+            {
+                if (!this.unique && value)
+                {
+                    this.CheckUnique();
+                }
+                this.unique = value;
+            }
+        }
 
         public DataColumn(DataFrame frame, string columnName, Type type)
         {
@@ -162,6 +176,29 @@ namespace Statistics.DataContainers
             {
                 this[i] = f(this[i]);
             }
+        }
+
+        private void CheckUnique()
+        {
+            var table = new Hashtable();
+            foreach (var item in this.data)
+            {
+                if (table.ContainsKey(item))
+                {
+                    throw new Exception(
+                        string.Format("Column '{0}' contains non-unique values.", this.columnName));
+                }
+            }
+        }
+
+        public T[] As<T>()
+        {
+            T[] array = new T[this.Count];
+            for (int i = 0; i < array.Length; i++)
+            {
+                array[i] = (T)this.data[i];
+            }
+            return array;
         }
     }
 }
