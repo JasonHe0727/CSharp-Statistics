@@ -8,17 +8,17 @@ namespace Statistics.DataContainers
 {
     public class DataFrame
     {
-        Dictionary<string,DataColumn> columnFromName;
-        List<DataColumn> columns;
+        Dictionary<string,Series> columnFromName;
+        List<Series> columns;
         int rowCount;
 
         public int RowCount { get { return this.rowCount; } }
 
         public int ColumnCount { get { return this.columns.Count; } }
 
-        DataColumn primaryKey;
+        Series primaryKey;
 
-        public DataColumn PrimaryKey
+        public Series PrimaryKey
         { 
             get
             {
@@ -29,7 +29,7 @@ namespace Statistics.DataContainers
                 if (this.columns.Contains(value))
                 {
                     value.Unique = true;
-                    if (this.primaryKey == null)
+                    if (object.Equals(this.primaryKey, null))
                     {
                         this.primaryKey = value;
                     }
@@ -48,19 +48,19 @@ namespace Statistics.DataContainers
 
         public DataFrame()
         {
-            this.columnFromName = new Dictionary<string, DataColumn>();
-            this.columns = new List<DataColumn>();
+            this.columnFromName = new Dictionary<string, Series>();
+            this.columns = new List<Series>();
             this.rowCount = 0;
         }
 
         public DataFrame(int rowCount)
         {
-            this.columnFromName = new Dictionary<string, DataColumn>();
-            this.columns = new List<DataColumn>();
+            this.columnFromName = new Dictionary<string, Series>();
+            this.columns = new List<Series>();
             this.rowCount = rowCount;
         }
 
-        public ReadOnlyCollection<DataColumn> Columns
+        public ReadOnlyCollection<Series> Columns
         {
             get
             {
@@ -93,13 +93,13 @@ namespace Statistics.DataContainers
             }
             else
             {
-                DataColumn newColumn = new DataColumn(this, columnName, type, this.rowCount);
+                Series newColumn = new Series(columnName, type, this.rowCount);
                 columnFromName.Add(columnName, newColumn);
                 columns.Add(newColumn);
             }
         }
 
-        public void AddColumn(DataColumn column)
+        public void AddColumn(Series column)
         {
             if (this.columns.Count == 0)
             {
@@ -129,7 +129,7 @@ namespace Statistics.DataContainers
             }
         }
 
-        private void ExpandNewColumn(DataColumn newColumn)
+        private void ExpandNewColumn(Series newColumn)
         {
             for (int i = 0; i < rowCount; i++)
             {
@@ -155,7 +155,7 @@ namespace Statistics.DataContainers
 
         public void RemoveColumn(string columnName)
         {
-            DataColumn column;
+            Series column;
             if (this.columnFromName.TryGetValue(columnName, out column))
             {
                 this.columnFromName.Remove(columnName);
@@ -179,9 +179,37 @@ namespace Statistics.DataContainers
             }
         }
 
-        public DataColumn this [string columnName]
+        public Series this [string columnName]
         {
             get { return this.columnFromName[columnName]; }
+        }
+
+        public DataFrame this [Series booleanSeries]
+        {
+            get
+            {
+                if (this.rowCount == booleanSeries.Count && booleanSeries.type == typeof(bool))
+                {
+                    DataFrame newFrame = new DataFrame();
+                    foreach (Series column in columns)
+                    {
+                        newFrame.AddColumn(column.ColumnName, column.type);
+                    }
+                    for (int i = 0; i < this.rowCount; i++)
+                    {
+                        DataRow row = this.GetRow(i);
+                        if ((bool)booleanSeries[i])
+                        {
+                            newFrame.AddRow(row.ItemArray);
+                        }
+                    }
+                    return newFrame;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("booleanSeries");
+                }
+            }
         }
 
         public override string ToString()
@@ -223,7 +251,7 @@ namespace Statistics.DataContainers
             var frame = new DataFrame(rowCapacity);
             for (int i = 0; i < columnNames.Length; i++)
             {
-                DataColumn newColumn = new DataColumn(frame, columnNames[i], types[i], rowCapacity);
+                Series newColumn = new Series(columnNames[i], types[i], rowCapacity);
                 frame.columnFromName.Add(columnNames[i], newColumn);
                 frame.columns.Add(newColumn);
                 for (int row = 0; row < rowCapacity; row++)
@@ -257,15 +285,15 @@ namespace Statistics.DataContainers
             writer.SaveData();
         }
 
-        public object Clone()
+        /*  public object Clone()
         {
             var newDataFrame = new DataFrame();
             foreach (var column in this.columns)
             {
-                newDataFrame.AddColumn((DataColumn)column.Clone());
+                newDataFrame.AddColumn((Series)column.Clone());
             }
             return newDataFrame;
-        }
+        }*/
 
         public DataRow GetRow(int rowIndex)
         {
@@ -282,7 +310,7 @@ namespace Statistics.DataContainers
         public DataFrame Subset(Predicate<DataRow> filter)
         {
             DataFrame newFrame = new DataFrame();
-            foreach (DataColumn column in columns)
+            foreach (Series column in columns)
             {
                 newFrame.AddColumn(column.ColumnName, column.type);
             }
@@ -299,7 +327,7 @@ namespace Statistics.DataContainers
 
         public int IndexOfKey(object key)
         {
-            if (this.primaryKey == null)
+            if (object.Equals(this.primaryKey, null))
             {
                 throw new Exception("DataFrame does not have a primary key.");
             }

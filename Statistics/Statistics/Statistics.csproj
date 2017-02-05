@@ -38,10 +38,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DataContainers\DataFrame.cs" />
-    <Compile Include="DataContainers\DataColumn.cs" />
     <Compile Include="DataContainers\DataFrameWriter.cs" />
     <Compile Include="DataContainers\DataFrameReader.cs" />
     <Compile Include="DataContainers\DataRow.cs" />
+    <Compile Include="DataContainers\Series.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

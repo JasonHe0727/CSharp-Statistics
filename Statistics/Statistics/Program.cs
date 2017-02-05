@@ -19,7 +19,14 @@ namespace Statistics
             df.AddRow("Peeta", 78);
 
             df.PrimaryKey = df["name"];
-            Console.WriteLine(df.IndexOfColumn("name"));
+
+
+            var df2 = df[df["age"] > 40 & df["name"] == "Michael"];
+
+            Console.WriteLine(df);
+            Console.WriteLine("======================");
+            Console.WriteLine(df2);
+            /*Console.WriteLine(df.IndexOfColumn("name"));
             Console.WriteLine(df.IndexOfKey("Rue"));
             Console.WriteLine(string.Join(", ", df["age"].As<int>()));
             Console.WriteLine(df);
@@ -31,9 +38,10 @@ namespace Statistics
             {
                 Console.WriteLine(item);
             }
-            Console.WriteLine();
+
+            Console.WriteLine();*/
             // Console.WriteLine(df.Subset(row => (int)row["age"] > 40));
-            Console.WriteLine(df.Subset(row => row.RowIndex < 2));
+            //Console.WriteLine(df.Subset(row => row.RowIndex < 2));
             Console.WriteLine();
 
             //  df.SaveToFile("test_df.cdf", Encoding.UTF8);
