@@ -2,7 +2,7 @@
 
 namespace Statistics.DataContainers
 {
-    public class DataRow
+    public class DataFrameRow
     {
         readonly DataFrame frame;
         readonly int rowIndex;
@@ -13,7 +13,7 @@ namespace Statistics.DataContainers
 
         public int ColumnCount { get { return this.frame.ColumnCount; } }
 
-        public DataRow(DataFrame frame, int rowIndex)
+        public DataFrameRow(DataFrame frame, int rowIndex)
         {
             this.frame = frame;
             this.rowIndex = rowIndex;

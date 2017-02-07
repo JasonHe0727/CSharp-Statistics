@@ -1,0 +1,5 @@
+/home/jasonhe/MyCode/CSharpCode/CSharp-Statistics/src/Statistics/Statistics/obj/x86/Debug/.NETFramework,Version=v4.5.AssemblyAttribute.cs
+/home/jasonhe/MyCode/CSharpCode/CSharp-Statistics/src/Statistics/Statistics/bin/Debug/Statistics.dll.mdb
+/home/jasonhe/MyCode/CSharpCode/CSharp-Statistics/src/Statistics/Statistics/bin/Debug/Statistics.dll
+/home/jasonhe/MyCode/CSharpCode/CSharp-Statistics/src/Statistics/Statistics/obj/x86/Debug/Statistics.dll
+/home/jasonhe/MyCode/CSharpCode/CSharp-Statistics/src/Statistics/Statistics/obj/x86/Debug/Statistics.dll.mdb

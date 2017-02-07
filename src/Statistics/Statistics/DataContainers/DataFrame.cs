@@ -8,15 +8,15 @@ namespace Statistics.DataContainers
 {
     public class DataFrame
     {
-        Dictionary<string,Series> columnFromName;
-        List<Series> columns;
+        readonly Dictionary<string,Series> columnFromName;
+        readonly List<Series> columns;
+
         int rowCount;
+        Series primaryKey = Series.Empty;
 
         public int RowCount { get { return this.rowCount; } }
 
         public int ColumnCount { get { return this.columns.Count; } }
-
-        Series primaryKey;
 
         public Series PrimaryKey
         { 
@@ -29,7 +29,7 @@ namespace Statistics.DataContainers
                 if (this.columns.Contains(value))
                 {
                     value.Unique = true;
-                    if (object.Equals(this.primaryKey, null))
+                    if (this.primaryKey.IsEmpty)
                     {
                         this.primaryKey = value;
                     }
@@ -46,18 +46,25 @@ namespace Statistics.DataContainers
             }
         }
 
+        public bool HasColumn(string columnName)
+        {
+            return this.columnFromName.ContainsKey(columnName);
+        }
+
         public DataFrame()
         {
             this.columnFromName = new Dictionary<string, Series>();
             this.columns = new List<Series>();
             this.rowCount = 0;
+            this.rows = new DataFrameRowCollection(this);
         }
 
-        public DataFrame(int rowCount)
+        private DataFrame(int rowCount)
         {
             this.columnFromName = new Dictionary<string, Series>();
             this.columns = new List<Series>();
             this.rowCount = rowCount;
+            this.rows = new DataFrameRowCollection(this);
         }
 
         public ReadOnlyCollection<Series> Columns
@@ -65,6 +72,24 @@ namespace Statistics.DataContainers
             get
             {
                 return this.columns.AsReadOnly();
+            }
+        }
+
+        public ReadOnlyDictionary<string, Series> GetColumnDictionary
+        {
+            get
+            {
+                return new ReadOnlyDictionary<string,Series>(this.columnFromName);
+            }
+        }
+
+        public readonly DataFrameRowCollection rows;
+
+        public DataFrameRowCollection Rows
+        {
+            get
+            {
+                return this.rows;
             }
         }
 
@@ -84,9 +109,18 @@ namespace Statistics.DataContainers
             }
         }
 
+        private void ImportRowUnchecked(DataFrameRow row)
+        {
+            for (int i = 0; i < this.ColumnCount; i++)
+            {
+                this.columns[i].Add(row[i]);
+            }
+            this.rowCount++;
+        }
+
         public void AddColumn(string columnName, Type type)
         {
-            if (columnFromName.ContainsKey(columnName))
+            if (HasColumn(columnName))
             {
                 string message = string.Format("Column {0} has already existed.", columnName);
                 throw new ArgumentException(message, "columnName");
@@ -94,6 +128,7 @@ namespace Statistics.DataContainers
             else
             {
                 Series newColumn = new Series(columnName, type, this.rowCount);
+                ExpandNewColumn(newColumn);
                 columnFromName.Add(columnName, newColumn);
                 columns.Add(newColumn);
             }
@@ -104,22 +139,22 @@ namespace Statistics.DataContainers
             if (this.columns.Count == 0)
             {
                 this.columns.Add(column);
-                this.columnFromName.Add(column.ColumnName, column);
+                this.columnFromName.Add(column.Name, column);
                 this.rowCount = this.columns.Count;
             }
             else
             {
                 if (column.Count == this.rowCount)
                 {
-                    if (columnFromName.ContainsKey(column.ColumnName))
+                    if (HasColumn(column.Name))
                     {
-                        string message = string.Format("Column {0} has already existed.", column.ColumnName);
+                        string message = string.Format("Column {0} has already existed.", column.Name);
                         throw new ArgumentException(message, "columnName");
                     }
                     else
                     {
                         this.columns.Add(column);
-                        this.columnFromName.Add(column.ColumnName, column);
+                        this.columnFromName.Add(column.Name, column);
                     }
                 }
                 else
@@ -184,30 +219,26 @@ namespace Statistics.DataContainers
             get { return this.columnFromName[columnName]; }
         }
 
-        public DataFrame this [Series booleanSeries]
+        public DataFrame this [BooleanArray booleanArray]
         {
             get
             {
-                if (this.rowCount == booleanSeries.Count && booleanSeries.type == typeof(bool))
+                if (this.rowCount == booleanArray.Length)
                 {
-                    DataFrame newFrame = new DataFrame();
-                    foreach (Series column in columns)
-                    {
-                        newFrame.AddColumn(column.ColumnName, column.type);
-                    }
+                    DataFrame newFrame = this.Clone();
                     for (int i = 0; i < this.rowCount; i++)
                     {
-                        DataRow row = this.GetRow(i);
-                        if ((bool)booleanSeries[i])
+                        if (booleanArray[i])
                         {
-                            newFrame.AddRow(row.ItemArray);
+                            DataFrameRow row = this.rows[i];
+                            newFrame.ImportRowUnchecked(row);
                         }
                     }
                     return newFrame;
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("booleanSeries");
+                    throw new ArgumentOutOfRangeException("booleanArray");
                 }
             }
         }
@@ -222,11 +253,11 @@ namespace Statistics.DataContainers
             {
                 StringBuilder builder = new StringBuilder();
 
-                builder.Append(this.columns[0].ColumnName);
+                builder.Append(this.columns[0].Name);
                 for (int i = 1; i < ColumnCount; i++)
                 {
                     builder.Append(',');
-                    builder.Append(this.columns[i].ColumnName);
+                    builder.Append(this.columns[i].Name);
                 }
                 builder.AppendLine();
 
@@ -245,7 +276,6 @@ namespace Statistics.DataContainers
             }
         }
 
-
         internal static DataFrame CreatEmptyFrame(string[] columnNames, Type[] types, int rowCapacity)
         {
             var frame = new DataFrame(rowCapacity);
@@ -254,10 +284,8 @@ namespace Statistics.DataContainers
                 Series newColumn = new Series(columnNames[i], types[i], rowCapacity);
                 frame.columnFromName.Add(columnNames[i], newColumn);
                 frame.columns.Add(newColumn);
-                for (int row = 0; row < rowCapacity; row++)
-                {
-                    newColumn.Add(null);
-                }
+
+                frame.ExpandNewColumn(newColumn);
             }
 
             return frame;
@@ -285,49 +313,36 @@ namespace Statistics.DataContainers
             writer.SaveData();
         }
 
-        /*  public object Clone()
+        public DataFrame Subset(Predicate<DataFrameRow> filter)
         {
-            var newDataFrame = new DataFrame();
-            foreach (var column in this.columns)
-            {
-                newDataFrame.AddColumn((Series)column.Clone());
-            }
-            return newDataFrame;
-        }*/
+            DataFrame newFrame = this.Clone();
 
-        public DataRow GetRow(int rowIndex)
-        {
-            if (rowIndex >= 0 && rowIndex < this.rowCount)
-            {
-                return new DataRow(this, rowIndex);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException("rowIndex");
-            }
-        }
-
-        public DataFrame Subset(Predicate<DataRow> filter)
-        {
-            DataFrame newFrame = new DataFrame();
-            foreach (Series column in columns)
-            {
-                newFrame.AddColumn(column.ColumnName, column.type);
-            }
             for (int i = 0; i < this.rowCount; i++)
             {
-                DataRow row = this.GetRow(i);
+                DataFrameRow row = this.rows[i];
                 if (filter(row))
                 {
-                    newFrame.AddRow(row.ItemArray);
+                    newFrame.ImportRowUnchecked(row);
                 }
             }
             return newFrame;
         }
 
+        public DataFrame Clone()
+        {
+            DataFrame newFrame = new DataFrame();
+
+            foreach (Series column in columns)
+            {
+                newFrame.AddColumn(column.Name, column.type);
+            }
+
+            return newFrame;
+        }
+
         public int IndexOfKey(object key)
         {
-            if (object.Equals(this.primaryKey, null))
+            if (this.primaryKey.IsEmpty)
             {
                 throw new Exception("DataFrame does not have a primary key.");
             }
@@ -341,7 +356,7 @@ namespace Statistics.DataContainers
         {
             for (int i = 0; i < columns.Count; i++)
             {
-                if (string.Equals(columns[i].ColumnName, columnName))
+                if (string.Equals(columns[i].Name, columnName))
                 {
                     return i;
                 }
@@ -359,12 +374,20 @@ namespace Statistics.DataContainers
             this.rowCount = 0;
         }
 
-        public T[] MapToClass<T>(Func<DataRow,T> converter)
+        public void TrimToSize()
+        {
+            for (int i = 0; i < this.columns.Count; i++)
+            {
+                this.columns[i].TrimToSize();
+            }
+        }
+
+        public T[] MapToClass<T>(Func<DataFrameRow,T> converter)
         {
             T[] array = new T[this.rowCount];
             for (int i = 0; i < this.rowCount; i++)
             {
-                array[i] = converter(this.GetRow(i));
+                array[i] = converter(this.rows[i]);
             }
             return array;
         }

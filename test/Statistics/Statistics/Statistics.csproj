@@ -40,8 +40,10 @@
     <Compile Include="DataContainers\DataFrame.cs" />
     <Compile Include="DataContainers\DataFrameWriter.cs" />
     <Compile Include="DataContainers\DataFrameReader.cs" />
-    <Compile Include="DataContainers\DataRow.cs" />
     <Compile Include="DataContainers\Series.cs" />
+    <Compile Include="DataContainers\DataFrameRow.cs" />
+    <Compile Include="DataContainers\DataFrameRowCollection.cs" />
+    <Compile Include="DataContainers\BooleanArray.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

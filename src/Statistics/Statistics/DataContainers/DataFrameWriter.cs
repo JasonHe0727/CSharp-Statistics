@@ -30,7 +30,7 @@ namespace Statistics.DataContainers
 
             for (int i = 0; i < frame.ColumnCount; i++)
             {
-                this.writer.Write(this.frame.Columns[i].ColumnName);
+                this.writer.Write(this.frame.Columns[i].Name);
             }
 
             for (int i = 0; i < frame.ColumnCount; i++)
@@ -119,7 +119,7 @@ namespace Statistics.DataContainers
 
     }
 
-    internal enum DataType:byte
+    internal enum DataType: byte
     {
         Null = 0,
         NotNull = 1,

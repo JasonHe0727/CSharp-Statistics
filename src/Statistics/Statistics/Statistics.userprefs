@@ -1,19 +1,19 @@
 ﻿<Properties StartupItem="Statistics.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Program.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="DataContainers/Series.cs">
     <Files>
-      <File FileName="DataContainers/DataRow.cs" Line="1" Column="1" />
-      <File FileName="DataContainers/DataFrame.cs" Line="330" Column="54" />
-      <File FileName="Program.cs" Line="1" Column="1" />
-      <File FileName="DataContainers/Series.cs" Line="297" Column="60" />
+      <File FileName="DataContainers/Series.cs" Line="253" Column="76" />
+      <File FileName="Program.cs" Line="24" Column="48" />
+      <File FileName="DataContainers/DataFrame.cs" Line="65" Column="47" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="Statistics" expanded="True">
             <Node name="Statistics" expanded="True">
-              <Node name="DataContainers" expanded="True" />
-              <Node name="Program.cs" selected="True" />
+              <Node name="DataContainers" expanded="True">
+                <Node name="Series.cs" selected="True" />
+              </Node>
             </Node>
           </Node>
         </State>
